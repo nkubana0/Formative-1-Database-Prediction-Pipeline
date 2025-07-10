@@ -51,8 +51,8 @@ def populate_mongodb_from_csv(csv_path, mongo_uri, db_name, collection_name):
 
         # Optional: Clear existing data in the collection before inserting new data
         # Uncomment the line below if you want to start fresh each time.
-        # collection.delete_many({})
-        # print(f"Cleared existing documents from '{collection_name}' collection.")
+        collection.delete_many({})
+        print(f"Cleared existing documents from '{collection_name}' collection.")
 
         # 3. Prepare documents for insertion
         documents = []
