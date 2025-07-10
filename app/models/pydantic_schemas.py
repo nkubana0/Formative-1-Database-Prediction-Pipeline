@@ -52,3 +52,6 @@ class Person(BaseModel):
 
     class Config:
         from_attributes = True
+
+class LoanUpdate(BaseModel):
+    loan_status: str

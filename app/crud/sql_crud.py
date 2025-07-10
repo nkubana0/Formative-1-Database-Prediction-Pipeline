@@ -44,3 +44,21 @@ def delete_person(db: Session, person_id: int):
     db.delete(db_person)
     db.commit()
     return db_person
+
+# CREATE a loan for a specific person
+def create_person_loan(db: Session, loan: pydantic_schemas.LoanCreate, person_id: int):
+    db_loan = sql_models.Loan(**loan.dict(), person_id=person_id)
+    db.add(db_loan)
+    db.commit()
+    db.refresh(db_loan)
+    return db_loan
+
+# UPDATE a loan's status
+def update_loan_status(db: Session, loan_id: int, status: str):
+    db_loan = db.query(sql_models.Loan).filter(sql_models.Loan.loan_id == loan_id).first()
+    if not db_loan:
+        return None
+    db_loan.loan_status = status
+    db.commit()
+    db.refresh(db_loan)
+    return db_loan

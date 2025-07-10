@@ -50,3 +50,19 @@ def delete_person(person_id: int, db: Session = Depends(get_db)):
     if db_person is None:
         raise HTTPException(status_code=404, detail="Person not found")
     return db_person
+
+# CREATE endpoint for a loan associated with a person
+@router.post("/persons/{person_id}/loans/", response_model=pydantic_schemas.Loan)
+def create_loan_for_person(person_id: int, loan: pydantic_schemas.LoanCreate, db: Session = Depends(get_db)):
+    db_person = sql_crud.get_person(db, person_id=person_id)
+    if db_person is None:
+        raise HTTPException(status_code=404, detail="Person not found")
+    return sql_crud.create_person_loan(db=db, loan=loan, person_id=person_id)
+
+# UPDATE endpoint for a loan's status
+@router.put("/loans/{loan_id}", response_model=pydantic_schemas.Loan)
+def update_loan_status(loan_id: int, loan_update: pydantic_schemas.LoanUpdate, db: Session = Depends(get_db)):
+    updated_loan = sql_crud.update_loan_status(db=db, loan_id=loan_id, status=loan_update.loan_status)
+    if updated_loan is None:
+        raise HTTPException(status_code=404, detail="Loan not found")
+    return updated_loan
