@@ -1,5 +1,3 @@
-# ml/predict.py
-
 import requests
 import joblib
 import pandas as pd

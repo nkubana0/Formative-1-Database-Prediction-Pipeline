@@ -1,26 +1,40 @@
 import pandas as pd
 from pymongo import MongoClient
 from datetime import datetime
-import numpy as np 
+import numpy as np
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # --- Configuration ---
-MONGO_URI = 'mongodb://localhost:27017/' 
+MONGO_URI = os.getenv("MONGO_URI")
 DB_NAME = 'loan_prediction_db'
 COLLECTION_NAME = 'loanApplications'
-CSV_FILE_PATH = 'Phase2.csv' 
+CSV_FILE_PATH = 'data/Phase2.csv' 
 
 # --- Main Script ---
 def populate_mongodb_from_csv(csv_path, mongo_uri, db_name, collection_name):
+    if not mongo_uri:
+        print("Error: MONGO_URI not found. Make sure you have a .env file with the MONGO_URI variable.")
+        return
+
     try:
         # 1. Load the CSV dataset
         df = pd.read_csv(csv_path)
         print(f"Successfully loaded '{csv_path}' with {len(df)} rows and {len(df.columns)} columns.")
-        print(f"Columns found: {df.columns.tolist()}")
-
+        
         # 2. Connect to MongoDB
         client = MongoClient(mongo_uri)
         db = client[db_name]
         collection = db[collection_name]
+        
+        # --- THE FIX: Clear the collection before inserting ---
+        print(f"Clearing existing documents from '{collection_name}'...")
+        collection.delete_many({})
+        print("Collection cleared.")
+        # ----------------------------------------------------
 
         # 3. Prepare documents for insertion
         documents = []
@@ -58,7 +72,7 @@ def populate_mongodb_from_csv(csv_path, mongo_uri, db_name, collection_name):
             print("No documents to insert.")
 
     except FileNotFoundError:
-        print(f"Error: CSV file not found at '{csv_path}'. Please ensure '{csv_path}' is in the same directory as this script.")
+        print(f"Error: CSV file not found at '{csv_path}'. Please ensure the path is correct.")
     except pd.errors.EmptyDataError:
         print(f"Error: CSV file '{csv_path}' is empty.")
     except KeyError as e:
