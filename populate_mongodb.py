@@ -1,19 +1,30 @@
 import pandas as pd
 from pymongo import MongoClient
 from datetime import datetime
-import numpy as np 
+import numpy as np
+import urllib.parse # <-- This is the new import
 
 # --- Configuration ---
-MONGO_URI = 'mongodb://localhost:27017/' 
+# Your Atlas username and password
+ATLAS_USERNAME = "Christophe" # Your actual Atlas username
+ATLAS_PASSWORD = "Chris@123"  # Your actual Atlas password
+
+# Encode username and password for safe URL inclusion
+encoded_username = urllib.parse.quote_plus(ATLAS_USERNAME)
+encoded_password = urllib.parse.quote_plus(ATLAS_PASSWORD)
+
+# Construct the MONGO_URI using the encoded credentials
+# Ensure the rest of the connection string matches what Atlas provides for your cluster.
+MONGO_URI = f'mongodb+srv://{encoded_username}:{encoded_password}@cluster0.li8orti.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
+
 DB_NAME = 'loan_prediction_db'
 COLLECTION_NAME = 'loanApplications'
-CSV_FILE_PATH = 'Phase2.csv' 
+CSV_FILE_PATH = 'Phase2.csv'
 
 # --- Main Script ---
 def populate_mongodb_from_csv(csv_path, mongo_uri, db_name, collection_name):
     try:
         # 1. Load the CSV dataset
-        # pandas will automatically use the first row as headers and detect delimiter.
         df = pd.read_csv(csv_path)
 
         print(f"Successfully loaded '{csv_path}' with {len(df)} rows and {len(df.columns)} columns.")
@@ -24,12 +35,14 @@ def populate_mongodb_from_csv(csv_path, mongo_uri, db_name, collection_name):
         db = client[db_name]
         collection = db[collection_name]
 
+        # Optional: Clear existing data in the collection before inserting new data
+        # Uncomment the line below if you want to clear the collection first.
+        collection.delete_many({})
+        print(f"Cleared existing documents from '{collection_name}' collection.")
+
         # 3. Prepare documents for insertion
         documents = []
         for index, row in df.iterrows():
-            # Convert pandas NaN to None for MongoDB (MongoDB stores None as null).
-            # Using .get() for robustness in case a column somehow gets missed,
-            # though with read_csv and known headers, it should be fine.
             doc = {
                 "personDetails": {
                     "age": row['person_age'],
@@ -51,7 +64,7 @@ def populate_mongodb_from_csv(csv_path, mongo_uri, db_name, collection_name):
                     "previousLoanDefaults": row['previous_loan_defaults_on_file']
                 },
                 "loanStatus": row['loan_status'],
-                "ingestionTimestamp": datetime.now() # Add a timestamp for tracking when inserted
+                "ingestionTimestamp": datetime.now()
             }
             documents.append(doc)
 
