@@ -2,26 +2,37 @@ import pandas as pd
 from pymongo import MongoClient
 from datetime import datetime
 import numpy as np
-import urllib.parse # <-- This is the new import
+import urllib.parse
+import os
+from dotenv import load_dotenv # <-- New import
+
+# Load environment variables from .env file
+load_dotenv() # <-- New line
 
 # --- Configuration ---
-# Your Atlas username and password
-ATLAS_USERNAME = "Christophe" # Your actual Atlas username
-ATLAS_PASSWORD = "Chris@123"  # Your actual Atlas password
+# Now, retrieve them from environment variables.
+ATLAS_USERNAME = os.environ.get("MONGO_ATLAS_USERNAME")
+ATLAS_PASSWORD = os.environ.get("MONGO_ATLAS_PASSWORD")
+
+# --- IMPORTANT CHECK ---
+if not ATLAS_USERNAME or not ATLAS_PASSWORD:
+    raise ValueError("MONGO_ATLAS_USERNAME and MONGO_ATLAS_PASSWORD environment variables must be set. Ensure your .env file is correct and load_dotenv() is called.")
 
 # Encode username and password for safe URL inclusion
 encoded_username = urllib.parse.quote_plus(ATLAS_USERNAME)
 encoded_password = urllib.parse.quote_plus(ATLAS_PASSWORD)
 
 # Construct the MONGO_URI using the encoded credentials
-# Ensure the rest of the connection string matches what Atlas provides for your cluster.
-MONGO_URI = f'mongodb+srv://{encoded_username}:{encoded_password}@cluster0.li8orti.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
+CLUSTER_ID = "cluster0.li8orti.mongodb.net" # Your specific cluster ID part
+APP_NAME = "Cluster0" # Your specific app name from connection string
+
+MONGO_URI = f'mongodb+srv://{encoded_username}:{encoded_password}@{CLUSTER_ID}/?retryWrites=true&w=majority&appName={APP_NAME}'
 
 DB_NAME = 'loan_prediction_db'
 COLLECTION_NAME = 'loanApplications'
 CSV_FILE_PATH = 'Phase2.csv'
 
-# --- Main Script ---
+# --- Main Script (rest of the script remains the same) ---
 def populate_mongodb_from_csv(csv_path, mongo_uri, db_name, collection_name):
     try:
         # 1. Load the CSV dataset
@@ -31,14 +42,17 @@ def populate_mongodb_from_csv(csv_path, mongo_uri, db_name, collection_name):
         print(f"Columns found: {df.columns.tolist()}")
 
         # 2. Connect to MongoDB
-        client = MongoClient(mongo_uri)
+        client = MongoClient(mongo_uri, serverSelectionTimeoutMS=5000)
+        client.admin.command('ping') # Test connection immediately
+        print("MongoDB connection successful!")
+
         db = client[db_name]
         collection = db[collection_name]
 
         # Optional: Clear existing data in the collection before inserting new data
-        # Uncomment the line below if you want to clear the collection first.
-        collection.delete_many({})
-        print(f"Cleared existing documents from '{collection_name}' collection.")
+        # Uncomment the line below if you want to start fresh each time.
+        # collection.delete_many({})
+        # print(f"Cleared existing documents from '{collection_name}' collection.")
 
         # 3. Prepare documents for insertion
         documents = []
