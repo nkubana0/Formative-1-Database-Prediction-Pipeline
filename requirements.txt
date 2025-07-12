@@ -6,4 +6,4 @@ pymongo
 pandas
 scikit-learn
 python-multipart
-
+python-dotenv
