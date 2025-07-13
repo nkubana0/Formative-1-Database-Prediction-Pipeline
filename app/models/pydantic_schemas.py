@@ -2,16 +2,16 @@ from pydantic import BaseModel
 from typing import List, Optional
 
 # --- Loan Schemas ---
-# Schema for creating a loan
 class LoanBase(BaseModel):
     loan_amount: float
     loan_interest_rate: float
     loan_status: str
 
+# This schema can still be used internally if needed
 class LoanCreate(LoanBase):
     pass
 
-# Schema for reading a loan
+# Schema for reading a loan from the database
 class Loan(LoanBase):
     loan_id: int
     person_id: int
@@ -19,27 +19,12 @@ class Loan(LoanBase):
     class Config:
         from_attributes = True
 
+# Schema for updating a loan's status
+class LoanUpdate(BaseModel):
+    loan_status: str
+
 # --- Person Schemas ---
-# Schema for creating a new person.
-# We define the fields directly to ensure they appear correctly in the docs.
-class PersonCreate(BaseModel):
-    age: int
-    income: float
-    home_ownership_id: int
-    employment_experience: int
-    credit_score: int
-    credit_history_length: int
-
-# Schema for updating a person (all fields are optional)
-class PersonUpdate(BaseModel):
-    age: Optional[int] = None
-    income: Optional[float] = None
-    home_ownership_id: Optional[int] = None
-    employment_experience: Optional[int] = None
-    credit_score: Optional[int] = None
-    credit_history_length: Optional[int] = None
-
-# Schema for reading a person, including their loans
+# Schema for reading a person from the database
 class Person(BaseModel):
     person_id: int
     age: int
@@ -53,5 +38,29 @@ class Person(BaseModel):
     class Config:
         from_attributes = True
 
-class LoanUpdate(BaseModel):
-    loan_status: str
+# Schema for updating a person (all fields are optional)
+class PersonUpdate(BaseModel):
+    age: Optional[int] = None
+    income: Optional[float] = None
+    home_ownership_id: Optional[int] = None
+    employment_experience: Optional[int] = None
+    credit_score: Optional[int] = None
+    credit_history_length: Optional[int] = None
+
+# --- NEW: Schema for a complete new application ---
+# This is the request body for our main endpoint.
+class ApplicationCreate(BaseModel):
+    # Person details
+    age: int
+    income: float
+    employment_experience: int
+    credit_score: int
+    credit_history_length: int
+    home_ownership_id: int
+    gender: str # e.g., "Male", "Female"
+    education: str # e.g., "High School", "Bachelor's"
+
+    # Loan details (status is excluded)
+    loan_amount: float
+    loan_interest_rate: float
+    loan_intent: str # e.g., "EDUCATION", "MEDICAL"
