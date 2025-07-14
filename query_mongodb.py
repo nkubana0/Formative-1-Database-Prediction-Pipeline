@@ -10,9 +10,7 @@ load_dotenv()
 # Direct loading of the full MONGO_URI from .env
 MONGO_URI = os.getenv("MONGO_URI") # <-- This is the main change!
 
-# You can keep CLUSTER_ID and APP_NAME as references, but they are not used for URI construction anymore
-# CLUSTER_ID = "loanpredictor.jqhvfck.mongodb.net"
-# APP_NAME = "LoanPredictor"
+
 
 if not MONGO_URI:
     # It's good practice to provide a clear error if the essential URI is missing
