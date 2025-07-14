@@ -2,57 +2,39 @@ import pandas as pd
 from pymongo import MongoClient
 from datetime import datetime
 import numpy as np
-import urllib.parse
 import os
-from dotenv import load_dotenv # <-- New import
+from dotenv import load_dotenv
 
 # Load environment variables from .env file
-load_dotenv() # <-- New line
+load_dotenv()
 
 # --- Configuration ---
-# Now, retrieve them from environment variables.
-ATLAS_USERNAME = os.environ.get("MONGO_ATLAS_USERNAME")
-ATLAS_PASSWORD = os.environ.get("MONGO_ATLAS_PASSWORD")
-
-# --- IMPORTANT CHECK ---
-if not ATLAS_USERNAME or not ATLAS_PASSWORD:
-    raise ValueError("MONGO_ATLAS_USERNAME and MONGO_ATLAS_PASSWORD environment variables must be set. Ensure your .env file is correct and load_dotenv() is called.")
-
-# Encode username and password for safe URL inclusion
-encoded_username = urllib.parse.quote_plus(ATLAS_USERNAME)
-encoded_password = urllib.parse.quote_plus(ATLAS_PASSWORD)
-
-# Construct the MONGO_URI using the encoded credentials
-CLUSTER_ID = "cluster0.li8orti.mongodb.net" # Your specific cluster ID part
-APP_NAME = "Cluster0" # Your specific app name from connection string
-
-MONGO_URI = f'mongodb+srv://{encoded_username}:{encoded_password}@{CLUSTER_ID}/?retryWrites=true&w=majority&appName={APP_NAME}'
-
+MONGO_URI = os.getenv("MONGO_URI")
 DB_NAME = 'loan_prediction_db'
 COLLECTION_NAME = 'loanApplications'
-CSV_FILE_PATH = 'Phase2.csv'
+CSV_FILE_PATH = 'data/Phase2.csv' 
 
-# --- Main Script (rest of the script remains the same) ---
+# --- Main Script ---
 def populate_mongodb_from_csv(csv_path, mongo_uri, db_name, collection_name):
+    if not mongo_uri:
+        print("Error: MONGO_URI not found. Make sure you have a .env file with the MONGO_URI variable.")
+        return
+
     try:
         # 1. Load the CSV dataset
         df = pd.read_csv(csv_path)
-
         print(f"Successfully loaded '{csv_path}' with {len(df)} rows and {len(df.columns)} columns.")
-        print(f"Columns found: {df.columns.tolist()}")
-
+        
         # 2. Connect to MongoDB
-        client = MongoClient(mongo_uri, serverSelectionTimeoutMS=5000)
-        client.admin.command('ping') # Test connection immediately
-        print("MongoDB connection successful!")
-
+        client = MongoClient(mongo_uri)
         db = client[db_name]
         collection = db[collection_name]
-
-        # Optional: Clear existing data in the collection before inserting new data
-        # Uncomment the line below if you want to start fresh each time.
+        
+        # --- THE FIX: Clear the collection before inserting ---
+        print(f"Clearing existing documents from '{collection_name}'...")
         collection.delete_many({})
-        print(f"Cleared existing documents from '{collection_name}' collection.")
+        print("Collection cleared.")
+        # ----------------------------------------------------
 
         # 3. Prepare documents for insertion
         documents = []
@@ -90,7 +72,7 @@ def populate_mongodb_from_csv(csv_path, mongo_uri, db_name, collection_name):
             print("No documents to insert.")
 
     except FileNotFoundError:
-        print(f"Error: CSV file not found at '{csv_path}'. Please ensure '{csv_path}' is in the same directory as this script.")
+        print(f"Error: CSV file not found at '{csv_path}'. Please ensure the path is correct.")
     except pd.errors.EmptyDataError:
         print(f"Error: CSV file '{csv_path}' is empty.")
     except KeyError as e:
