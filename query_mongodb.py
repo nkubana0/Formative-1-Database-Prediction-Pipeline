@@ -15,8 +15,6 @@ if not MONGO_URI:
     
     raise ValueError("MONGO_URI environment variable must be set in your .env file.")
 
-# The MONGO_URI is now directly available from os.getenv()
-# No need for encoded_username, encoded_password, or manual string formatting here
 
 DB_NAME = 'loan_prediction_db'
 COLLECTION_NAME = 'loanApplications'
