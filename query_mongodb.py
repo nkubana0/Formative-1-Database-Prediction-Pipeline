@@ -9,8 +9,10 @@ load_dotenv()
 # --- Configuration (using your Atlas credentials from .env) ---
 ATLAS_USERNAME = os.environ.get("MONGO_ATLAS_USERNAME")
 ATLAS_PASSWORD = os.environ.get("MONGO_ATLAS_PASSWORD")
-CLUSTER_ID = "cluster0.li8orti.mongodb.net"
-APP_NAME = "Cluster0"
+
+# !!! THESE ARE NOW UPDATED FOR YOUR GROUP MEMBER'S DATABASE !!!
+CLUSTER_ID = "loanpredictor.jqhvfck.mongodb.net"
+APP_NAME = "LoanPredictor"
 
 if not ATLAS_USERNAME or not ATLAS_PASSWORD:
     raise ValueError("MONGO_ATLAS_USERNAME and MONGO_ATLAS_PASSWORD environment variables must be set.")
@@ -18,6 +20,7 @@ if not ATLAS_USERNAME or not ATLAS_PASSWORD:
 encoded_username = quote_plus(ATLAS_USERNAME)
 encoded_password = quote_plus(ATLAS_PASSWORD)
 
+# The MONGO_URI is constructed using the updated CLUSTER_ID and APP_NAME
 MONGO_URI = f'mongodb+srv://{encoded_username}:{encoded_password}@{CLUSTER_ID}/?retryWrites=true&w=majority&appName={APP_NAME}'
 
 DB_NAME = 'loan_prediction_db'
