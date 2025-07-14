@@ -1,6 +1,5 @@
 import os
 from pymongo import MongoClient
-# from urllib.parse import quote_plus # No longer needed
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -13,7 +12,7 @@ MONGO_URI = os.getenv("MONGO_URI") # <-- This is the main change!
 
 
 if not MONGO_URI:
-    # It's good practice to provide a clear error if the essential URI is missing
+    
     raise ValueError("MONGO_URI environment variable must be set in your .env file.")
 
 # The MONGO_URI is now directly available from os.getenv()
