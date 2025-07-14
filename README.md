@@ -5,17 +5,17 @@ This project is a machine learning pipeline that integrates both relational and 
 ---
 
 
-## 🚀 Features
+## Features
 
-- 🔗 Dual database support: SQLite (SQL) + MongoDB Atlas (NoSQL)
-- 🧠 Logistic Regression model for loan approval prediction
-- 📊 RESTful API built with FastAPI (CRUD operations for Person + Loan)
-- 🔄 Realtime prediction via Python script or Jupyter notebook
-- ✨ Automatic update of prediction results to both databases
+-  Dual database support: SQLite (SQL) + MongoDB Atlas (NoSQL)
+- Logistic Regression model for loan approval prediction
+- RESTful API built with FastAPI (CRUD operations for Person + Loan)
+- Realtime prediction via Python script or Jupyter notebook
+- Automatic update of prediction results to both databases
 
 ---
 
-## 🛠 Tech Stack
+##  Tech Stack
 
 - **Backend**: FastAPI, SQLite, MongoDB (pymongo)
 - **ML**: scikit-learn, joblib, pandas
@@ -23,7 +23,7 @@ This project is a machine learning pipeline that integrates both relational and 
 
 ---
 
-## 🧪 How to Run the Project
+## How to Run the Project
 
 ### 1. Clone the Repository
 
@@ -32,21 +32,21 @@ git clone https://github.com/your-username/Formative-1-Database-Prediction-Pipel
 cd Formative-1-Database-Prediction-Pipeline
 ```
 
-## 2. Set Up a Virtual Environment
+### 2. Set Up a Virtual Environment
 
 ```bash
 python -m venv venv
 venv\Scripts\activate    # Windows
 ```
 
-## 3. Install Dependencies
+### 3. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 
 ```
 
-## 4. Start the API Server
+##$ 4. Start the API Server
 
 ```bash
 uvicorn app.main:app --reload
