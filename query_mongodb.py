@@ -1,27 +1,25 @@
 import os
 from pymongo import MongoClient
-from urllib.parse import quote_plus
+# from urllib.parse import quote_plus # No longer needed
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
 
-# --- Configuration (using your Atlas credentials from .env) ---
-ATLAS_USERNAME = os.environ.get("MONGO_ATLAS_USERNAME")
-ATLAS_PASSWORD = os.environ.get("MONGO_ATLAS_PASSWORD")
+# --- Configuration (using your full MONGO_URI from .env) ---
+# Direct loading of the full MONGO_URI from .env
+MONGO_URI = os.getenv("MONGO_URI") # <-- This is the main change!
 
-# !!! THESE ARE NOW UPDATED FOR YOUR GROUP MEMBER'S DATABASE !!!
-CLUSTER_ID = "loanpredictor.jqhvfck.mongodb.net"
-APP_NAME = "LoanPredictor"
+# You can keep CLUSTER_ID and APP_NAME as references, but they are not used for URI construction anymore
+# CLUSTER_ID = "loanpredictor.jqhvfck.mongodb.net"
+# APP_NAME = "LoanPredictor"
 
-if not ATLAS_USERNAME or not ATLAS_PASSWORD:
-    raise ValueError("MONGO_ATLAS_USERNAME and MONGO_ATLAS_PASSWORD environment variables must be set.")
+if not MONGO_URI:
+    # It's good practice to provide a clear error if the essential URI is missing
+    raise ValueError("MONGO_URI environment variable must be set in your .env file.")
 
-encoded_username = quote_plus(ATLAS_USERNAME)
-encoded_password = quote_plus(ATLAS_PASSWORD)
-
-# The MONGO_URI is constructed using the updated CLUSTER_ID and APP_NAME
-MONGO_URI = f'mongodb+srv://{encoded_username}:{encoded_password}@{CLUSTER_ID}/?retryWrites=true&w=majority&appName={APP_NAME}'
+# The MONGO_URI is now directly available from os.getenv()
+# No need for encoded_username, encoded_password, or manual string formatting here
 
 DB_NAME = 'loan_prediction_db'
 COLLECTION_NAME = 'loanApplications'
@@ -111,7 +109,6 @@ try:
         }
     ).sort("personDetails.income", -1).limit(3):
         print(doc)
-
 
 except Exception as e:
     print(f"An error occurred: {e}")
