@@ -14,3 +14,11 @@ env/
 
 # Environment variables file
 .env
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.venv/
+venv/
